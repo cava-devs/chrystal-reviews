@@ -3,10 +3,13 @@ const bodyParser = require('body-parser');
 const db = require('../../database/index.js');
 const express = require('express');
 const app = express();
+const path = require('path');
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => res.send('CavaTable reviews module server is working!'));
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname + '../../../index.html'));
+});
 
 app.get('/reviews', (req, res) => {
   db.getAllReviews();
