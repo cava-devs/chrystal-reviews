@@ -1,19 +1,13 @@
-const port = 8081;
 const bodyParser = require('body-parser');
-const db = require('../../database/index.js');
 const path = require('path');
 const express = require('express');
-const app = express();
+const db = require('../../database/index.js');
 
+const app = express();
+const port = 8081;
 app.use(bodyParser.json());
 
-app.use("/", function(req, res, next) {
-  console.log("the request URL is " + req.url);
-  next();
-});
-
-app.use('/reviewsBundle.js', express.static(path.join(__dirname + '../../../client/dist/bundle.js')));
-app.use('/reviewsMain.css', express.static(path.join(__dirname + '../../../client/styles/main.css')));
+app.use('/restaurant/:restaurantId', express.static(path.join(__dirname, '/../../client/dist/')));
 
 app.get('/restaurant/:restaurantId/reviews', (req, res) => {
   db.getAllReviews(req.params.restaurantId, (err, results) => {
@@ -23,5 +17,12 @@ app.get('/restaurant/:restaurantId/reviews', (req, res) => {
     }
   });
 });
+
+// app.post('/restaurant/:restaurantId/reviews'), (req, res) => {
+//   if (!req.body.name) {
+//     res.status(400).send('Error, a name is required')
+//   }
+//   //insert into database
+// }
 
 app.listen(port, () => console.log(`CavaTable is listening on port ${port}`));
