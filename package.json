@@ -10,12 +10,14 @@
   "scripts": {
     "start": "node server/src/index.js",
     "react-dev": "webpack -d --watch",
-    "mysql": "mysql -u root < schema.sql"
+    "mysql": "mysql -u root < schema.sql",
+    "insertPostgres": "psql postgres < ./database/ryanData/insertIntoPostgresDatabase.sql"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.1.1",
+    "cassandra-driver": "^3.5.0",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0",
     "mongoose": "^5.1.3",

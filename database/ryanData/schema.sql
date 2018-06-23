@@ -20,9 +20,9 @@ CREATE TABLE reviews (
     service_rating integer NOT NULL,
     value_rating integer NOT NULL,
     noise_level integer NOT NULL,
-    body character varying(255) NOT NULL,
+    body character varying(500) NOT NULL,
     recommended integer NOT NULL,
-    date character(25) NOT NULL
+    date character(40) NOT NULL
 );
 
 DROP TABLE IF EXISTS users CASCADE;

@@ -1,18 +1,21 @@
 const faker = require('faker');
 const fs = require('fs');
 
-const numberOfOutputsPerFile = 1000000;
+const numberOfEntriesPerFile = 100000;
+const numberOfRestaurants = 10000000;
+const numberOfCategories = 10000000;
+const numberOfUsers = 10000000;
+const numberOfReviews = 10000000;
+const maxRating = 5;
+const minNoiseLevel = 1;
+const maxNoiseLevel = 4;
 
 const getRandomInteger = (min, max) => (Math.floor(Math.random() * (max - min + 1)) + min);
 
 const generateUsernames = (numberOfOutputEntries) => {
   let usernames = '';
-  for (let i = 0; i < numberOfOutputEntries; i += 1) {
-    if (i === 0) {
-      usernames += faker.internet.userName();
-    } else {
-      usernames += (`\n${faker.internet.userName()}`);
-    }
+  for (var i = 0; i < numberOfOutputEntries; i += 1) {
+    usernames += (`${faker.internet.userName()}\n`);
   }
   return usernames;
 };
@@ -21,13 +24,25 @@ const generateRestaurantNames = (numberOfOutputEntries) => {
   let restaurantNames = '';
   for (let i = 0; i < numberOfOutputEntries; i += 1) {
     const numberOfWords = getRandomInteger(1, 4);
-    if (i === 0) {
-      restaurantNames += faker.lorem.words(numberOfWords);
-    } else {
-      restaurantNames += (`\n${faker.lorem.words(numberOfWords)}`);
-    }
+    restaurantNames += (`${faker.lorem.words(numberOfWords)}\n`);
   }
   return restaurantNames;
+};
+
+const generateReviewBody = () => {
+  return faker.lorem.sentences();
+};
+
+const generateReviewDates = (yearsOld) => {
+  return faker.date.past(yearsOld);
+};
+
+const generateReviews = (numberOfOutputEntries) => {
+  let reviewData = '';
+  for (let i = 0; i < numberOfOutputEntries; i += 1) {
+    reviewData += (`${getRandomInteger(1, numberOfRestaurants)}|${getRandomInteger(1, numberOfUsers)}|${getRandomInteger(0, maxRating)}|${getRandomInteger(0, maxRating)}|${getRandomInteger(0, maxRating)}|${getRandomInteger(0, maxRating)}|${getRandomInteger(minNoiseLevel, maxNoiseLevel)}|${generateReviewBody()}|${getRandomInteger(0, 1)}|${generateReviewDates(5)}\n`);
+  }
+  return reviewData;
 };
 
 // const generateNumberForAllEntries = (min, max, numberOfOutputEntries) => {
@@ -36,23 +51,6 @@ const generateRestaurantNames = (numberOfOutputEntries) => {
 //     allValues.push(getRandomInteger(min, max));
 //   }
 //   return allValues;
-// };
-
-// const generateReviewBodies = (numberOfOutputEntries) => {
-//   const reviewBodies = [];
-//   for (let i = 0; i < numberOfOutputEntries; i += 1) {
-//     const numberOfParagraphs = getRandomInteger(1, 3);
-//     reviewBodies.push(faker.lorem.paragraphs(numberOfParagraphs));
-//   }
-//   return reviewBodies;
-// };
-
-// const generateReviewDates = (yearsOld, numberOfOutputEntries) => {
-//   const reviewDates = [];
-//   for (let i = 0; i < numberOfOutputEntries; i += 1) {
-//     reviewDates.push(faker.date.past(yearsOld));
-//   }
-//   return reviewDates;
 // };
 
 const generateCategoryNames = (numberOfOutputEntries) => {
@@ -112,26 +110,39 @@ const generateCategoryNames = (numberOfOutputEntries) => {
   let categoryNames = '';
   for (let i = 0; i < numberOfOutputEntries; i += 1) {
     const randomIndex = getRandomInteger(0, categoriesList.length);
-    if (i === 0) {
-      categoryNames += categoriesList[randomIndex];
-    } else {
-      categoryNames += (`\n${categoriesList[randomIndex]}`);
-    }
+    categoryNames += (`${categoriesList[randomIndex]}\n`);
   }
   return categoryNames;
 };
 
-const saveDataToFile = (filename, generateDataFunc, numberInEachFile) => {
-  for (let i = 0; i < 10; i += 1) {
-    const data = generateDataFunc(numberInEachFile);
-    fs.writeFile(`./${filename}_${i}.txt`, data, (err) => {
-      if (err) throw err;
-      console.log('The file has been saved!');
-    });
+// const saveDataToFile = (filename, generateDataFunc, totalNumberOfEntries, entriesPerFile) => {
+//   for (var i = 0; i < (totalNumberOfEntries / entriesPerFile); i += 1) {
+//     const data = generateDataFunc(entriesPerFile);
+//     fs.appendFileSync(`./${filename}.csv`, data, (err) => {
+//       if (err) throw err;
+//       console.log('The file has been saved!');
+//     });
+//   }
+//   console.log(i)
+// };
+
+const saveDataToFile = (filename, generateDataFunc, totalNumberOfEntries, entriesPerFile) => {
+  const writeStream = fs.createWriteStream(`./${filename}.csv`);
+  for (let i = 0; i < (totalNumberOfEntries / entriesPerFile); i += 1) {
+    const data = generateDataFunc(entriesPerFile);
+    writeStream.write(data);
   }
+  writeStream.on('finish', () => {
+    console.log('wrote all data to file');
+  });
+  writeStream.end();
 };
 
 // DATA FOR REVIEWS
+console.time('10M-reviewEntries split into 10 files');
+saveDataToFile('./dataFiles/reviewsEntries', generateReviews, numberOfReviews, numberOfEntriesPerFile);
+console.timeEnd('10M-reviewEntries split into 10 files');
+
 // const overallRatingEntries = generateNumberForAllEntries(0, 5, numberOfOutputs);
 // saveDataToFile('./dataFiles/overallRatingEntries.csv', overallRatingEntries);
 
@@ -159,15 +170,15 @@ const saveDataToFile = (filename, generateDataFunc, numberInEachFile) => {
 
 // DATA FOR USERS
 // console.time('10M-usernames split into 10 files');
-// saveDataToFile('./dataFiles/usernameEntries', generateUsernames, numberOfOutputsPerFile);
+// saveDataToFile('./dataFiles/usernameEntries', generateUsernames, numberOfUsers, numberOfEntriesPerFile);
 // console.timeEnd('10M-usernames split into 10 files');
 
 // DATA FOR RESTAURANTS
 // console.time('10M-restaurantNames split into 10 files');
-// saveDataToFile('./dataFiles/restaurantNameEntries', generateRestaurantNames, numberOfOutputsPerFile);
+// saveDataToFile('./dataFiles/restaurantNameEntries', generateRestaurantNames, numberOfRestaurants, numberOfEntriesPerFile);
 // console.timeEnd('10M-restaurantNames split into 10 files');
 
 // DATA FOR CATEGORIES
 // console.time('10M-categoryNames split into 10 files');
-// saveDataToFile('./dataFiles/categoryNameEntries', generateCategoryNames, numberOfOutputsPerFile);
+// saveDataToFile('./dataFiles/categoryNameEntries', generateCategoryNames, numberOfCategories, numberOfEntriesPerFile);
 // console.timeEnd('10M-categoryNames split into 10 files');
