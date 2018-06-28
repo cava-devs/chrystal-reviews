@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-// const mysqlConfig = require('./config.js');
+const mysqlConfig = require('./config.js');
 const generateData = require('./generateData.js');
 
 const connection = mysql.createConnection({
@@ -28,7 +28,7 @@ const getAllReviews = (restaurantId, callback) => {
   console.log('response being sent from reviews endpoint');
   connection.query(`SELECT * FROM reviews WHERE restaurant_id=${restaurantId} LIMIT 1500`, (error, results) => {
     if (error) {callback(error, null)}
-    else {callback(null, results)}
+    else { callback(null, results); }
   });
 };
 

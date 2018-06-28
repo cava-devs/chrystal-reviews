@@ -34,20 +34,21 @@ class Overview extends React.Component {
   displayAllReviews(props) {
     axios.get(`/restaurant/${this.props.restaurantId}/reviews`)
       .then((response) => {
+        console.log('THE RESPONSE IS ', response);
         this.setState({
-          totalReviews: response.data.length,
-          overallRating: overview.overallRating(response.data),
-          foodRating: overview.foodRating(response.data),
-          serviceRating: overview.serviceRating(response.data),
-          ambienceRating: overview.ambienceRating(response.data),
-          valueRating: overview.valueRating(response.data),
-          noiseLevel: overview.noiseLevel(overview.noise(response.data)),
-          recommended: overview.recommended(response.data),
-          fiveStarReviews: overview.fiveStarReviews(response.data),
-          fourStarReviews: overview.fourStarReviews(response.data),
-          threeStarReviews: overview.threeStarReviews(response.data),
-          twoStarReviews: overview.twoStarReviews(response.data),
-          oneStarReviews: overview.oneStarReviews(response.data)
+          totalReviews: response.data.rows.length,
+          overallRating: overview.overallRating(response.data.rows),
+          foodRating: overview.foodRating(response.data.rows),
+          serviceRating: overview.serviceRating(response.data.rows),
+          ambienceRating: overview.ambienceRating(response.data.rows),
+          valueRating: overview.valueRating(response.data.rows),
+          noiseLevel: overview.noiseLevel(overview.noise(response.data.rows)),
+          recommended: overview.recommended(response.data.rows),
+          fiveStarReviews: overview.fiveStarReviews(response.data.rows),
+          fourStarReviews: overview.fourStarReviews(response.data.rows),
+          threeStarReviews: overview.threeStarReviews(response.data.rows),
+          twoStarReviews: overview.twoStarReviews(response.data.rows),
+          oneStarReviews: overview.oneStarReviews(response.data.rows)
         });
       })
       .catch((error) => {

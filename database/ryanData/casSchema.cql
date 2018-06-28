@@ -6,8 +6,8 @@ USE able_table;
 
 CREATE TYPE reviewtype (
   review_id int,
-  restaurant_name text,
   username text,
+  username_id int,
   overall_rating int,
   food_rating int,
   service_rating int,
@@ -16,10 +16,12 @@ CREATE TYPE reviewtype (
   body text,
   recommended int,
   date text,
+  review_categories list <text>
 );
 
 CREATE TABLE IF NOT EXISTS restaurants(
   restaurant_id int PRIMARY KEY,
   restaurant_name text,
-  review list <frozen<reviewtype>>
+  restaurant_categories list <text>,
+  reviews list <frozen<reviewtype>>
 );

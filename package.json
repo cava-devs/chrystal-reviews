@@ -8,7 +8,7 @@
     "node": ">=6.13.0"
   },
   "scripts": {
-    "start": "node server/src/index.js",
+    "start": "nodemon server/src/index.js",
     "react-dev": "webpack -d --watch",
     "mysql": "mysql -u root < schema.sql",
     "insertPostgres": "psql postgres < ./database/ryanData/insertIntoPostgresDatabase.sql"
