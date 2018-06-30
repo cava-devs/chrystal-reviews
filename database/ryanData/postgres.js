@@ -92,9 +92,7 @@ const insertCategories = (reviewId, categories, response) => {
       select category_name from categories where category_name = '${category}'
     ) RETURNING id`)
       .then((result) => {
-        console.log(reviewId, result.rows);
         if (result.rows.length) {
-          console.log('ENTERED IF');
           insertReviewCategory(reviewId, result.rows[0].id)
             .then(() => response.status(201).send());
         } else {
@@ -111,7 +109,7 @@ const deleteReview = (restaurantId, callback) => {
   });
 };
 
-const updateReview = (newInfo, response) => {
+const updateReview = (newInfo, callback) => {
   const keys = [];
   const vals = [];
   Object.keys(newInfo).forEach((key) => {
@@ -138,7 +136,7 @@ const updateReview = (newInfo, response) => {
   query += ` WHERE id = ${newInfo.review_id}`;
   client.query(query, (err, result) => {
     if (err) throw err;
-    response.send();
+    callback(null, result);
   });
 };
 

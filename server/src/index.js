@@ -1,8 +1,22 @@
+require('newrelic');
 const bodyParser = require('body-parser');
 const path = require('path');
 const express = require('express');
-// const db = require('../../database/index.js');
 const db = require('../../database/ryanData/postgres.js');
+
+const redis = require('redis');
+
+const { REDIS_PORT } = process.env;
+const client = redis.createClient(REDIS_PORT);
+
+client.on('connect', () => {
+  console.log('Redis client connected');
+});
+
+client.on('error', (err) => {
+  console.log(`Error ${err}`);
+});
+// const db = require('../../database/index.js');
 
 
 const app = express();
@@ -12,13 +26,24 @@ app.use(bodyParser.json());
 
 app.use('/restaurant/:restaurantId', express.static(path.join(__dirname, '/../../client/dist/')));
 
-app.get('/restaurant/:restaurantId/reviews', (req, res) => {
+const cache = (req, res, next) => {
+  client.get(req.params.restaurantId, (err, data) => {
+    if (err) throw err;
+    if (data !== null) {
+      res.send(JSON.parse(data));
+    } else {
+      next();
+    }
+  });
+};
+
+app.get('/restaurant/:restaurantId/reviews', cache, (req, res) => {
   db.getAllReviews(req.params.restaurantId, (err, result) => {
     if (err) {
       console.log(err);
       res.status(500).send(err);
     } else {
-      console.log('successful get');
+      client.set(req.params.restaurantId, JSON.stringify(result), 'EX', 3600);
       res.status(200).send(result);
     }
   });
@@ -43,7 +68,15 @@ app.delete('/restaurant/:restaurantId/reviews', (req, res) => {
 });
 
 app.put('/restaurant/:restaurantId/reviews', (req, res) => {
-  db.updateReview(req.body, res);
+  db.updateReview(req.body, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send(err);
+    } else {
+      console.log('successful get');
+      res.status(200).send(result);
+    }
+  });
 });
 
 // CHRYSTAL'S ORIGINAL SERVER

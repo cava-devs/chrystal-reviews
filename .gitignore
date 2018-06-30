@@ -2,3 +2,4 @@ node_modules/
 client/dist/bundle.js
 database/config.js
 database/ryanData/dataFiles
+newrelic.js
